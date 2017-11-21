@@ -130,7 +130,7 @@
 (define-key global-map "\C-c c" 'org-capture)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "M-Y") 'helm-show-kill-ring)
-(global-set-key (kbd "M-M") 'helm-mark-ring)
+(global-set-key (kbd "M-M") 'helm-all-mark-rings)
 (global-set-key (kbd "C-x b") 'helm-mini)
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (global-set-key (kbd "C-c h o") 'helm-occur)
