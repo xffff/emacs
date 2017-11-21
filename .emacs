@@ -164,7 +164,8 @@
 (add-to-list 'auto-mode-alist '("\\.cls\\'" . apex-mode))
 (add-to-list 'auto-mode-alist '("\\.trigger\\'" . apex-mode))
 (add-to-list 'auto-mode-alist '("\\.page\\'" . nxml-mode))
-(add-to-list 'auto-mode-alist '("\\.component\\'" . nxml-mode))
+(add-to-list 'auto-mode-alist '("\\.cmp\\'" . nxml-mode))
+(add-to-list 'auto-mode-alist '("\\.evt\\'" . nxml-mode))
 (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
 (add-to-list 'save-some-buffers-action-alist
              `(?r ,(lambda (buf) (revert-buffer buf))
