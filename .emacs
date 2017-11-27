@@ -156,9 +156,13 @@
          company-dabbrev
          company-keywords
          company-files)
-        company-capf)))
+        company-capf
+        company-yasnippet)))
+(setq completion-styles (quote
+                         (partial-completion
+                          substring)))
 (setq company-dabbrev-downcase nil)
-
+(setq company-idle-delay 0.5)
 
 
 ;;; file extension hooks
@@ -167,6 +171,7 @@
 (add-to-list 'auto-mode-alist '("\\.page\\'" . nxml-mode))
 (add-to-list 'auto-mode-alist '("\\.cmp\\'" . nxml-mode))
 (add-to-list 'auto-mode-alist '("\\.evt\\'" . nxml-mode))
+
 (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
 (add-to-list 'save-some-buffers-action-alist
              `(?r ,(lambda (buf) (revert-buffer buf))
@@ -178,7 +183,7 @@
 
 
 ;;;; java stuff
-(add-hook 'java-mode-hook (lambda ()
+(add-hook 'prog-mode-hook (lambda ()
 			    (setq c-basic-offset 4
 				  tab-width 4
 				  indent-tabs-mode nil)
@@ -187,6 +192,7 @@
 
 
 ;;;; python stuff
+(add-to-list 'auto-mode-alist '("\\.py\\'" . elpy-mode))
 (defun run-python-once ()
   (remove-hook 'python-mode-hook 'run-python-once)
   (run-python))
