@@ -121,7 +121,7 @@
 
 ;;;; magit options
 (setq magit-last-seen-setup-instructions "1.4.0")
-
+(setq magit-save-repository-buffers nil)
 
 ;;;; keybindings
 (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
