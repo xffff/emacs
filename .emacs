@@ -1,21 +1,43 @@
+
+
+;;; package stuff
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
+(package-initialize)
+
+(mapc
+ (lambda (package)
+   (unless (package-installed-p package)
+     (progn (message "installing %s" package)
+            (package-refresh-contents)
+            (package-install package))))
+ '(helm
+   helm-projectile
+   yasnippet
+   vlf
+   magit
+   exec-path-from-shell
+   color-theme))
+
+
 ;;;; mac stuff
 (when (eq system-type 'darwin)
   (setq mac-option-modifier 'super)
   (setq mac-command-modifier 'meta)
   (global-set-key (kbd "s-3") '(lambda () (interactive) (insert "#")))
-  ;; (when (memq window-system '(mac ns))
-  ;;   ;; get the path back...
-  ;;   (exec-path-from-shell-initialize))
-  )
+  (when (memq window-system '(mac ns))
+    ;; get the path back... need package
+    (exec-path-from-shell-initialize)))
 
-;;;; packages
+
+;;;; enable packages etc
 (require 'helm)
 (require 'helm-config)
 (require 'yasnippet)
 (require 'vlf)
 (require 'color-theme)
 
-;;;; enable modes
 (yas/initialize)
 (yas-global-mode t)
 (helm-mode 1)
