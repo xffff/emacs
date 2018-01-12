@@ -41,6 +41,7 @@
 (yas/initialize)
 (yas-global-mode t)
 (helm-mode 1)
+(helm-projectile-on)
 (semantic-mode 1)
 (show-paren-mode t)
 (column-number-mode t)
@@ -61,13 +62,14 @@
 (setq display-time-mode t)
 (setq case-replace nil)
 (setq display-time t)
+(setq windmove-wrap-around t)
+(windmove-default-keybindings)
 
 (yas-load-directory (format "%s/%s" extensions "/apex-snippets"))
-(helm-projectile-on)
 (color-theme-initialize)
 (color-theme-dark-laptop)
 
-;;; semantic stuff
+;;;; semantic stuff
 (global-semantic-decoration-mode 1)
 (global-semantic-idle-summary-mode 1)
 (global-semantic-highlight-func-mode 1)
