@@ -112,6 +112,7 @@
 (setq magit-save-repository-buffers nil)
 
 ;;;; keybindings
+(define-key key-translation-map (kbd "C-h") (kbd "<DEL>")) ; ergonomic backspace
 (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
 (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
 (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
