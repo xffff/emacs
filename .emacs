@@ -1,53 +1,18 @@
-;;;; extensions dir
-(setq extensions "~/Documents/emacs/sfemacs/")
-
-
-
-;;;; load stuff
-(add-to-list 'load-path (format "%s/%s" extensions "/apex-mode/") t)
-(add-to-list 'load-path (format "%s/%s" extensions "/apex-snippets/" t))
-(load "apex-mode")
-
-
+;;;; mac stuff
+(when (eq system-type 'darwin)
+  (setq mac-option-modifier 'super)
+  (setq mac-command-modifier 'meta)
+  (global-set-key (kbd "s-3") '(lambda () (interactive) (insert "#")))
+  ;; (when (memq window-system '(mac ns))
+  ;;   ;; get the path back...
+  ;;   (exec-path-from-shell-initialize))
+  )
 
 ;;;; packages
-(require 'color-theme)
 (require 'helm)
 (require 'helm-config)
 (require 'yasnippet)
-(require 'darkroom)
 (require 'vlf)
-
-
-
-;;;; color
-(color-theme-initialize)
-(color-theme-midnight)
-
-
-
-;;;; config
-(when (>= emacs-major-version 24)
-  (require 'package)
-  (add-to-list
-   'package-archives
-   '("melpa" . "http://melpa.org/packages/")
-   t)
-  (add-to-list
-   'package-archives
-   '("marmalade" . "http://marmalade-repo.org/packages/")
-   t)
-  (package-initialize))
-
-
-;;;; mac stuff
-(setq mac-option-modifier 'super)
-(setq mac-command-modifier 'meta)
-(global-set-key (kbd "s-3") '(lambda () (interactive) (insert "#")))
-(when (memq window-system '(mac ns))
-  (exec-path-from-shell-initialize)) ;; get the path back...
-
-
 
 ;;;; enable modes
 (yas/initialize)
