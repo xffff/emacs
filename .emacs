@@ -111,12 +111,26 @@
 (setq magit-last-seen-setup-instructions "1.4.0")
 (setq magit-save-repository-buffers nil)
 
+
+;;; nicer backward kill word
+;;; http://david.rothlis.net/emacs/ergonomics.html
+(defun kill-region-or-backward-kill-word (&optional arg region)
+  "`kill-region' if the region is active, otherwise `backward-kill-word'"
+  (interactive
+   (list (prefix-numeric-value current-prefix-arg) (use-region-p)))
+  (if region
+      (kill-region (region-beginning) (region-end))
+    (backward-kill-word arg)))
+
+
+
 ;;;; keybindings
 (define-key key-translation-map (kbd "C-h") (kbd "<DEL>")) ; ergonomic backspace
 (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
 (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
 (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
 (define-key global-map "\C-c c" 'org-capture)
+(global-set-key (kbd "C-w") 'kill-region-or-backward-kill-word)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "M-Y") 'helm-show-kill-ring)
 (global-set-key (kbd "M-M") 'helm-all-mark-rings)
