@@ -13,6 +13,7 @@
 (require 'helm-config)
 (require 'yasnippet)
 (require 'vlf)
+(require 'color-theme)
 
 ;;;; enable modes
 (yas/initialize)
@@ -41,8 +42,8 @@
 
 (yas-load-directory (format "%s/%s" extensions "/apex-snippets"))
 (helm-projectile-on)
-
-
+(color-theme-initialize)
+(color-theme-dark-laptop)
 
 ;;; semantic stuff
 (global-semantic-decoration-mode 1)
