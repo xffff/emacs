@@ -1,4 +1,4 @@
-
+(setq extensions "~/emacs-setup")
 
 ;;; package stuff
 (require 'package)
@@ -18,7 +18,8 @@
    vlf
    magit
    exec-path-from-shell
-   color-theme))
+   color-theme
+   company))
 
 
 ;;;; mac stuff
@@ -52,8 +53,8 @@
 (setq wrap-region-mode t)
 (setq vc-handled-backends (delq 'Git vc-handled-backends))
 (setq indent-tabs-mode nil)
-(setq tool-bar-mode nil)
-(setq scroll-bar-mode nil)
+(setq tool-bar-mode -1)
+(setq scroll-bar-mode -1)
 (setq vc-annotate-background nil)
 (setq vc-annotate-very-old-color nil)
 (setq indent-tabs-mode nil)
@@ -65,7 +66,7 @@
 (setq windmove-wrap-around t)
 (windmove-default-keybindings)
 
-(yas-load-directory (format "%s/%s" extensions "/apex-snippets"))
+(yas-load-directory (format "%s/%s" extensions "/sfemacs/apex-snippets"))
 (color-theme-initialize)
 (color-theme-dark-laptop)
 
