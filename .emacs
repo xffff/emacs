@@ -14,12 +14,14 @@
             (package-install package))))
  '(helm
    helm-projectile
+   helm-company
    yasnippet
    vlf
    magit
    exec-path-from-shell
    color-theme
-   company))
+   company
+   atomic-chrome))
 
 
 ;;;; mac stuff
@@ -38,7 +40,9 @@
 (require 'yasnippet)
 (require 'vlf)
 (require 'color-theme)
+(require 'atomic-chrome)
 
+(atomic-chrome-start-server)
 (yas/initialize)
 (yas-global-mode t)
 (helm-mode 1)
@@ -141,6 +145,9 @@
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (global-set-key (kbd "C-c h o") 'helm-occur)
 (global-set-key (kbd "C-c h g") 'helm-google-suggest)
+(define-key minibuffer-local-map
+  (kbd "C-w")
+  'kill-region-or-backward-kill-word)
 
 ;;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
 ;;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
@@ -223,6 +230,11 @@
         ("STARTED" . "yellow")
         ("CANCELED" . (:foreground "blue" :weight bold))
         ("WAITING" . (:foreground "purple" :weight bold))))
+(setq org-todo-keywords
+      '("TODO"
+        "STARTED"
+        "CANCELED"
+        "WAITING"))
 (setq org-startup-with-inline-images t)
 (add-hook 'org-mode-hook 'iimage-mode)
 
