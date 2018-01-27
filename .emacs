@@ -29,6 +29,15 @@
   (setq mac-option-modifier 'super)
   (setq mac-command-modifier 'meta)
   (global-set-key (kbd "s-3") '(lambda () (interactive) (insert "#")))
+  (custom-set-variables
+   '(gnutls-trustfiles
+     (quote
+      ("/etc/ssl/certs/ca-certificates.crt"
+       "/etc/pki/tls/certs/ca-bundle.crt"
+       "/etc/ssl/ca-bundle.pem"
+       "/usr/ssl/certs/ca-bundle.crt"
+       "/usr/local/share/certs/ca-root-nss.crt"
+       "/private/etc/ssl/cert.pem"))))
   (when (memq window-system '(mac ns))
     ;; get the path back... need package
     (exec-path-from-shell-initialize)))
@@ -52,6 +61,7 @@
 (column-number-mode t)
 (projectile-global-mode t)
 (global-subword-mode t)
+(setq browse-url-browser-function 'eww-browse-url)
 (setq initial-buffer-choice t)    
 (setq initial-scratch-message nil)
 (setq wrap-region-mode t)
@@ -69,6 +79,9 @@
 (setq display-time t)
 (setq windmove-wrap-around t)
 (windmove-default-keybindings)
+(put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
+
 
 (yas-load-directory (format "%s/%s" extensions "/sfemacs/apex-snippets"))
 (color-theme-initialize)
@@ -238,7 +251,18 @@
 (setq org-startup-with-inline-images t)
 (add-hook 'org-mode-hook 'iimage-mode)
 
+;;; Use different font in org mode
+(defun org-mode-buffer-face ()
+  "Make org mode more readable"
+  (interactive)
+  (setq buffer-face-mode-face
+        '(:family "Menlo" :height 150 :width semi-condensed))
+  (toggle-truncate-lines)
+  (toggle-word-wrap)
+  (visual-line-mode)
+  (buffer-face-mode))
 
+(add-hook 'org-mode-hook 'org-mode-buffer-face)
 
 
 ;;;; custom-stuff
