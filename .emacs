@@ -20,6 +20,8 @@
    magit
    exec-path-from-shell
    color-theme
+   color-theme-sanityinc-solarized
+   csv-mode
    company
    atomic-chrome))
 
@@ -85,7 +87,8 @@
 
 (yas-load-directory (format "%s/%s" extensions "/sfemacs/apex-snippets"))
 (color-theme-initialize)
-(color-theme-dark-laptop)
+(color-theme-sanityinc-solarized-dark)
+;; (color-theme-dark-laptop)
 
 ;;;; semantic stuff
 (global-semantic-decoration-mode 1)
