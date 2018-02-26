@@ -372,7 +372,7 @@ Leave point after open-quotation."
 If the new path's directories does not exist, create them."
   (let* ((backupRootDir "~/.emacs.d/emacs-backup/")
          (backupFilePath
-          (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~"))))
+          (replace-regexp-in-string "//" "/" (concat backupRootDir fpath "~"))))
     (make-directory
      (file-name-directory backupFilePath)
      (file-name-directory backupFilePath))
