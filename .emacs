@@ -12,7 +12,8 @@
      (progn (message "installing %s" package)
             (package-refresh-contents)
             (package-install package))))
- '(helm
+ '(elpy
+   helm
    helm-projectile
    helm-company
    yasnippet
@@ -23,6 +24,10 @@
    color-theme-sanityinc-solarized
    csv-mode
    company
+   go-mode
+   docker
+   docker-compose-mode
+   dockerfile-mode
    atomic-chrome))
 
 
@@ -52,6 +57,7 @@
 (require 'vlf)
 (require 'color-theme)
 (require 'atomic-chrome)
+(elpy-enable)
 
 (atomic-chrome-start-server)
 (yas/initialize)
@@ -63,14 +69,18 @@
 (column-number-mode t)
 (projectile-global-mode t)
 (global-subword-mode t)
+(tool-bar-mode 0)
+(scroll-bar-mode 0)
+(blink-cursor-mode -1)
+(windmove-default-keybindings)
+
+
 (setq browse-url-browser-function 'eww-browse-url)
 (setq initial-buffer-choice t)    
 (setq initial-scratch-message nil)
 (setq wrap-region-mode t)
 (setq vc-handled-backends (delq 'Git vc-handled-backends))
 (setq indent-tabs-mode nil)
-(setq tool-bar-mode -1)
-(setq scroll-bar-mode -1)
 (setq vc-annotate-background nil)
 (setq vc-annotate-very-old-color nil)
 (setq indent-tabs-mode nil)
@@ -80,7 +90,6 @@
 (setq case-replace nil)
 (setq display-time t)
 (setq windmove-wrap-around t)
-(windmove-default-keybindings)
 (put 'narrow-to-region 'disabled nil)
 (put 'narrow-to-page 'disabled nil)
 
@@ -221,11 +230,22 @@
 
 
 ;;;; python stuff
-(add-to-list 'auto-mode-alist '("\\.py\\'" . elpy-mode))
+(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
 (defun run-python-once ()
   (remove-hook 'python-mode-hook 'run-python-once)
   (run-python))
 (add-hook 'python-mode-hook 'run-python-once)
+
+;; https://emacs.stackexchange.com/questions/30082/your-python-shell-interpreter-doesn-t-seem-to-support-readline
+(with-eval-after-load 'python
+  (defun python-shell-completion-native-try ()
+    "Return non-nil if can trigger native completion."
+    (let ((python-shell-completion-native-enable t)
+          (python-shell-completion-native-output-timeout
+           python-shell-completion-native-try-output-timeout))
+      (python-shell-completion-native-get-completions
+       (get-buffer-process (current-buffer))
+       nil "_"))))
 
 
 
@@ -245,12 +265,14 @@
       '(("TODO" . org-warning)
         ("STARTED" . "yellow")
         ("CANCELED" . (:foreground "blue" :weight bold))
-        ("WAITING" . (:foreground "purple" :weight bold))))
+        ("WAITING" . (:foreground "purple" :weight bold))
+        ("DONE" . (:foreground "green" :weight bold))))
 (setq org-todo-keywords
       '("TODO"
         "STARTED"
         "CANCELED"
-        "WAITING"))
+        "WAITING(w@/!)"
+        "DONE"))
 (setq org-startup-with-inline-images t)
 (add-hook 'org-mode-hook 'iimage-mode)
 
@@ -341,3 +363,21 @@ Leave point after open-quotation."
 
 (add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
 (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)
+
+
+;; make backup to a designated dir, mirroring the full path
+;; http://ergoemacs.org/emacs/emacs_set_backup_into_a_directory.html
+(defun my-backup-file-name (fpath)
+  "Return a new file path of a given file path.
+If the new path's directories does not exist, create them."
+  (let* ((backupRootDir "~/.emacs.d/emacs-backup/")
+         (backupFilePath
+          (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~"))))
+    (make-directory
+     (file-name-directory backupFilePath)
+     (file-name-directory backupFilePath))
+    backupFilePath
+  )
+)
+
+(setq make-backup-file-name-function 'my-backup-file-name)
