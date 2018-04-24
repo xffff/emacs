@@ -16,19 +16,22 @@
    helm
    helm-projectile
    helm-company
+   helm-spotify-plus
    yasnippet
    vlf
    magit
    exec-path-from-shell
    color-theme
    color-theme-sanityinc-solarized
+   color-theme-monokai
    csv-mode
    company
    go-mode
    docker
    docker-compose-mode
    dockerfile-mode
-   atomic-chrome))
+   atomic-chrome
+   plantuml-mode))
 
 
 ;;;; mac stuff
@@ -96,7 +99,7 @@
 
 (yas-load-directory (format "%s/%s" extensions "/sfemacs/apex-snippets"))
 (color-theme-initialize)
-(color-theme-sanityinc-solarized-dark)
+(color-theme-monokai)
 ;; (color-theme-dark-laptop)
 
 ;;;; semantic stuff
@@ -170,6 +173,10 @@
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (global-set-key (kbd "C-c h o") 'helm-occur)
 (global-set-key (kbd "C-c h g") 'helm-google-suggest)
+(global-unset-key  (kbd "C-x C-c"))
+(global-set-key (kbd "C-x C-q") 'save-buffers-kill-terminal) ; no more fat fingers
+
+
 (define-key minibuffer-local-map
   (kbd "C-w")
   'kill-region-or-backward-kill-word)
@@ -228,6 +235,9 @@
                             (electric-pair-mode t)))
 
 
+;;; plantuml stuff
+(add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
+
 
 ;;;; python stuff
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
@@ -251,6 +261,7 @@
 
 ;;;; org-stuff
 (setq org-src-fontify-natively t)
+(setq org-src-tab-acts-natively t)
 (setq org-agenda-custom-commands
       '(("c" "Calendar" agenda ""
          ((org-agenda-ndays 7)                          ;; [1]
@@ -286,6 +297,10 @@
   (toggle-word-wrap)
   (visual-line-mode)
   (buffer-face-mode))
+
+(setq org-blank-before-new-entry
+      '((heading . always)
+       (plain-list-item . nil)))
 
 (add-hook 'org-mode-hook 'org-mode-buffer-face)
 
@@ -381,3 +396,14 @@ If the new path's directories does not exist, create them."
 )
 
 (setq make-backup-file-name-function 'my-backup-file-name)
+
+;; https://stackoverflow.com/questions/8674912/how-to-collapse-whitespaces-in-a-region
+(defun just-one-space-in-region (beg end)
+  "replace all whitespace in the region with single spaces"
+  (interactive "r")
+  (save-excursion
+    (save-restriction
+      (narrow-to-region beg end)
+      (goto-char (point-min))
+      (while (re-search-forward "\\s-+" nil t)
+        (replace-match " ")))))
