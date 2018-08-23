@@ -1,4 +1,4 @@
-(setq extensions "~/emacs-setup")
+(setq extensions "~/Documents/emacs-setup")
 
 ;;; package stuff
 (require 'package)
@@ -12,26 +12,30 @@
      (progn (message "installing %s" package)
             (package-refresh-contents)
             (package-install package))))
- '(elpy
-   helm
-   helm-projectile
-   helm-company
-   helm-spotify-plus
-   yasnippet
-   vlf
-   magit
-   exec-path-from-shell
+ '(atomic-chrome
    color-theme
-   color-theme-sanityinc-solarized
    color-theme-monokai
-   csv-mode
+   color-theme-sanityinc-solarized
    company
-   go-mode
+   csv-mode
    docker
    docker-compose-mode
    dockerfile-mode
-   atomic-chrome
-   plantuml-mode))
+   elpy
+   exec-path-from-shell
+   go-mode
+   helm
+   helm-company
+   helm-projectile
+   helm-spotify-plus
+   magit
+   multiple-cursors
+   plantuml-mode
+   powerline
+   ob-http
+   shx
+   vlf
+   yasnippet))
 
 
 ;;;; mac stuff
@@ -60,6 +64,8 @@
 (require 'vlf)
 (require 'color-theme)
 (require 'atomic-chrome)
+(require 'multiple-cursors)
+(require 'powerline)
 (elpy-enable)
 
 (atomic-chrome-start-server)
@@ -96,7 +102,7 @@
 (put 'narrow-to-region 'disabled nil)
 (put 'narrow-to-page 'disabled nil)
 
-
+(load-file (format "%s/%s" extensions "/sfemacs/apex-mode/apex-mode.el"))
 (yas-load-directory (format "%s/%s" extensions "/sfemacs/apex-snippets"))
 (color-theme-initialize)
 (color-theme-monokai)
@@ -175,6 +181,10 @@
 (global-set-key (kbd "C-c h g") 'helm-google-suggest)
 (global-unset-key  (kbd "C-x C-c"))
 (global-set-key (kbd "C-x C-q") 'save-buffers-kill-terminal) ; no more fat fingers
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
 
 (define-key minibuffer-local-map
@@ -237,7 +247,7 @@
 
 ;;; plantuml stuff
 (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
-
+(setq plantuml-output-type "png")
 
 ;;;; python stuff
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
@@ -256,7 +266,7 @@
       (python-shell-completion-native-get-completions
        (get-buffer-process (current-buffer))
        nil "_"))))
-
+(setq python-shell-interpreter "python3")
 
 
 ;;;; org-stuff
@@ -285,6 +295,13 @@
         "WAITING(w@/!)"
         "DONE"))
 (setq org-startup-with-inline-images t)
+(org-reload)
+(add-to-list 'org-src-lang-modes '("http" . ob-http))
+(add-to-list 'org-src-lang-modes '("python" . python))
+(add-to-list 'org-babel-load-languages '(http . t))
+(add-to-list 'org-babel-load-languages '(shell . t))
+(add-to-list 'org-babel-load-languages '(python . t))
+
 (add-hook 'org-mode-hook 'iimage-mode)
 
 ;;; Use different font in org mode
@@ -407,3 +424,8 @@ If the new path's directories does not exist, create them."
       (goto-char (point-min))
       (while (re-search-forward "\\s-+" nil t)
         (replace-match " ")))))
+
+;;; shx stuff
+(defun shx-cmd-dx (args)
+  "open dx"
+  (shx-send (concat "sfdx " args)))
