@@ -57,6 +57,8 @@
     (exec-path-from-shell-initialize)))
 
 
+(server-start)
+
 ;;;; enable packages etc
 (require 'helm)
 (require 'helm-config)
@@ -67,7 +69,7 @@
 (require 'multiple-cursors)
 (require 'powerline)
 (elpy-enable)
-
+(powerline-default-theme)
 (atomic-chrome-start-server)
 (yas/initialize)
 (yas-global-mode t)
@@ -145,7 +147,8 @@
 (setq projectile-enable-caching t)
 (setq projectile-remember-window-configs t)
 (setq projectile-completion-system 'helm)
-
+(setq helm-locate-command
+      "locate %s %s")
 
 
 ;;;; magit options
