@@ -324,6 +324,15 @@
 
 (add-hook 'org-mode-hook 'org-mode-buffer-face)
 
+(setq org-columns-default-format
+      "%CATEGORY %25ITEM %TODO %3PRIORITY %SCHEDULED %DEADLINE %EFFORT %ALLTAGS")
+
+(add-to-list 'org-agenda-custom-commands
+             '("t" "List of all TODO entries"
+               alltodo ""
+               ((org-agenda-view-columns-initially t))
+               ))
+
 
 ;;;; custom-stuff
 (defun uniquify-all-lines-region (start end)
