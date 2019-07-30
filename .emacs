@@ -13,9 +13,6 @@
             (package-refresh-contents)
             (package-install package))))
  '(atomic-chrome
-   color-theme
-   color-theme-monokai
-   color-theme-sanityinc-solarized
    company
    csv-mode
    docker
@@ -24,10 +21,16 @@
    elpy
    exec-path-from-shell
    go-mode
+   flycheck
+   js2-mode
+   web-mode
+   json-mode
    helm
    helm-company
    helm-projectile
    helm-spotify-plus
+   helm-google
+   helm-flycheck
    magit
    multiple-cursors
    plantuml-mode
@@ -64,10 +67,10 @@
 (require 'helm-config)
 (require 'yasnippet)
 (require 'vlf)
-(require 'color-theme)
 (require 'atomic-chrome)
 (require 'multiple-cursors)
 (require 'powerline)
+(require 'flycheck)
 (elpy-enable)
 (powerline-default-theme)
 (atomic-chrome-start-server)
@@ -106,9 +109,6 @@
 
 (load-file (format "%s/%s" extensions "/sfemacs/apex-mode/apex-mode.el"))
 (yas-load-directory (format "%s/%s" extensions "/sfemacs/apex-snippets"))
-(color-theme-initialize)
-(color-theme-monokai)
-;; (color-theme-dark-laptop)
 
 ;;;; semantic stuff
 (global-semantic-decoration-mode 1)
@@ -116,6 +116,44 @@
 (global-semantic-highlight-func-mode 1)
 (global-semantic-stickyfunc-mode 1)
 (add-hook 'speedbar-load-hook (lambda () (require 'semantic/sb)))
+
+;;;; flycheck stuff
+
+;; turn on flychecking globally
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+;; disable jshint since we prefer eslint checking
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+    '(javascript-jshint)))
+
+;; disable json-jsonlist checking for json files
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+    '(json-jsonlist)))
+
+;; customize flycheck temp file prefix
+(setq-default flycheck-temp-prefix ".flycheck")
+
+;; use web-mode for .js files
+(add-to-list 'auto-mode-alist '("\\.js$" . web-mode))
+
+;; use eslint with web-mode for jsx files
+(flycheck-add-mode 'javascript-eslint 'web-mode)
+
+;;;; node modules
+;; use local eslint from node_modules before global
+;; http://emacs.stackexchange.com/questions/21205/flycheck-with-file-relative-eslint-executable
+(defun my/use-eslint-from-node-modules ()
+  (let* ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                "node_modules"))
+         (eslint (and root
+                      (expand-file-name "node_modules/eslint/bin/eslint.js"
+                                        root))))
+    (when (and eslint (file-executable-p eslint))
+      (setq-local flycheck-javascript-eslint-executable eslint))))
+(add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
 
 
 ;;;; helm options
@@ -251,6 +289,7 @@
 ;;; plantuml stuff
 (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
 (setq plantuml-output-type "png")
+(setq plantuml-default-exec-mode "jar")
 
 ;;;; python stuff
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
@@ -284,6 +323,7 @@
           (org-agenda-entry-types '(:timestamp :sexp))))  ;; [4]
         ;; other commands go here
         ))
+
 (setq org-tags-column -100)
 (setq org-todo-keyword-faces
       '(("TODO" . org-warning)
@@ -297,13 +337,26 @@
         "CANCELED"
         "WAITING(w@/!)"
         "DONE"))
-(setq org-startup-with-inline-images t)
+
 (org-reload)
+
+;; easy add code blocks
+(add-to-list 'org-structure-template-alist
+             '("cb" "#+NAME: ?\n#+BEGIN_SRC \n\n#+END_SRC"))
+
+
+(setq org-startup-with-inline-images t)
 (add-to-list 'org-src-lang-modes '("http" . ob-http))
 (add-to-list 'org-src-lang-modes '("python" . python))
 (add-to-list 'org-babel-load-languages '(http . t))
 (add-to-list 'org-babel-load-languages '(shell . t))
 (add-to-list 'org-babel-load-languages '(python . t))
+
+(require 'ob-js)
+(add-to-list 'org-babel-load-languages '(js . t))
+(org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+(add-to-list 'org-babel-tangle-lang-exts '("js" . "js"))
+
 
 (add-hook 'org-mode-hook 'iimage-mode)
 
