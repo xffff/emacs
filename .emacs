@@ -36,6 +36,7 @@
    plantuml-mode
    powerline
    ob-http
+   org-alert
    shx
    vlf
    yasnippet))
@@ -71,6 +72,8 @@
 (require 'multiple-cursors)
 (require 'powerline)
 (require 'flycheck)
+(require 'org-alert)
+
 (elpy-enable)
 (powerline-default-theme)
 (atomic-chrome-start-server)
@@ -116,6 +119,10 @@
 (global-semantic-highlight-func-mode 1)
 (global-semantic-stickyfunc-mode 1)
 (add-hook 'speedbar-load-hook (lambda () (require 'semantic/sb)))
+
+
+;;;; alert stuff
+(setq alert-default-style 'osx-notifier)
 
 ;;;; flycheck stuff
 
