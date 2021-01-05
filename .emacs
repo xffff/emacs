@@ -22,24 +22,29 @@
    exec-path-from-shell
    go-mode
    flycheck
-   js2-mode
-   web-mode
    json-mode
+   js2-mode
    helm
    helm-company
    helm-projectile
    helm-spotify-plus
    helm-google
    helm-flycheck
+   htmlize
    magit
    multiple-cursors
    plantuml-mode
    powerline
    ob-http
    org-alert
+   org-mind-map
+   ox-reveal
+   oauth2
    shx
    vlf
-   yasnippet))
+   yasnippet
+   web-mode
+   which-key))
 
 
 ;;;; mac stuff
@@ -73,6 +78,7 @@
 (require 'powerline)
 (require 'flycheck)
 (require 'org-alert)
+(require 'ox-reveal)
 
 (elpy-enable)
 (powerline-default-theme)
@@ -90,10 +96,10 @@
 (scroll-bar-mode 0)
 (blink-cursor-mode -1)
 (windmove-default-keybindings)
+(which-key-mode)
 
-
-(setq browse-url-browser-function 'eww-browse-url)
-(setq initial-buffer-choice t)    
+;(setq browse-url-browser-function 'eww-browse-url)
+(setq initial-buffer-choice t)
 (setq initial-scratch-message nil)
 (setq wrap-region-mode t)
 (setq vc-handled-backends (delq 'Git vc-handled-backends))
@@ -107,6 +113,9 @@
 (setq case-replace nil)
 (setq display-time t)
 (setq windmove-wrap-around t)
+(setq shell-command-switch "-ic")
+(setq which-key-popup-type 'minibuffer)
+
 (put 'narrow-to-region 'disabled nil)
 (put 'narrow-to-page 'disabled nil)
 
@@ -143,7 +152,7 @@
 (setq-default flycheck-temp-prefix ".flycheck")
 
 ;; use web-mode for .js files
-(add-to-list 'auto-mode-alist '("\\.js$" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
 ;; use eslint with web-mode for jsx files
 (flycheck-add-mode 'javascript-eslint 'web-mode)
@@ -179,7 +188,7 @@
 
 (setq helm-buffers-fuzzy-matching t
       helm-recentf-fuzzy-match    t)
-(setq helm-M-x-fuzzy-match t) 
+(setq helm-M-x-fuzzy-match t)
 
 (setq helm-semantic-fuzzy-match t
       helm-imenu-fuzzy-match t)
@@ -319,6 +328,21 @@
 
 
 ;;;; org-stuff
+
+;; This is an Emacs package that creates graphviz directed graphs from
+(require 'ox-org)
+
+(setq org-mind-map-engine "dot")       ; Default. Directed Graph
+;; (setq org-mind-map-engine "neato")  ; Undirected Spring Graph
+;; (setq org-mind-map-engine "twopi")  ; Radial Layout
+;; (setq org-mind-map-engine "fdp")    ; Undirected Spring Force-Directed
+;; (setq org-mind-map-engine "sfdp")   ; Multiscale version of fdp for the layout of large graphs
+;; (setq org-mind-map-engine "twopi")  ; Radial layouts
+;; (setq org-mind-map-engine "circo")  ; Circular Layout
+
+
+(setq org-image-actual-width 100)
+(setq org-reveal-root "file:///Applications/reveal.js/")
 (setq org-src-fontify-natively t)
 (setq org-src-tab-acts-natively t)
 (setq org-agenda-custom-commands
@@ -345,19 +369,51 @@
         "WAITING(w@/!)"
         "DONE"))
 
+;; org-gcal stuff
+;; (require 'org-gcal)
+;; (load-file (format "%s/%s" extensions "/gcal/gcal-setup.el"))
+
+; maybe when it works better
+; (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync) ))
+; (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync) ))
+
+;; org-capture stuff
+(setq org-capture-templates
+      '(("a" "Appointment" entry (file  "~/Documents/admin/org/org-capture/meeting-notes.org" )
+         "* %? \n:PROPERTIES:\n:DATE_TIME: %^T\n:PROJECT_NAME: %^G\n:END:\n\n")
+        ("l" "Link" entry (file+headline "~/Documents/admin/org/org-capture/links.org" "Links")
+         "* %? %^L %^g \n%T" :prepend t)
+        ("t" "Todo" entry (file+headline "~/Documents/admin/org/org-capture/capture.org" "Todo")
+         "* TODO %?\n%u" :prepend t)
+        ("n" "Note" entry (file+headline "~/Documents/admin/org/org-capture/capture.org" "Note space")
+         "* %?\n%u" :prepend t)
+        ("s" "Screencast" entry (file "~/Documents/admin/org/org-capture/screencastnotes.org")
+         "* %?\n%i\n")))
+
+
+
+
+
+;; reload org
 (org-reload)
 
 ;; easy add code blocks
 (add-to-list 'org-structure-template-alist
              '("cb" "#+NAME: ?\n#+BEGIN_SRC \n\n#+END_SRC"))
 
+;; easy add name block
+(add-to-list 'org-structure-template-alist
+             '("n" "#+NAME:"))
 
-(setq org-startup-with-inline-images t)
+
+(setq org-startup-with-inline-images nil)
 (add-to-list 'org-src-lang-modes '("http" . ob-http))
 (add-to-list 'org-src-lang-modes '("python" . python))
 (add-to-list 'org-babel-load-languages '(http . t))
 (add-to-list 'org-babel-load-languages '(shell . t))
 (add-to-list 'org-babel-load-languages '(python . t))
+
+(setq org-confirm-babel-evaluate nil)
 
 (require 'ob-js)
 (add-to-list 'org-babel-load-languages '(js . t))
@@ -366,6 +422,8 @@
 
 
 (add-hook 'org-mode-hook 'iimage-mode)
+
+(setq org-alert-headline-regexp "\\(Sched.+:.+TODO.+\\|Deadline:.+TODO.+\\)")
 
 ;;; Use different font in org mode
 (defun org-mode-buffer-face ()
@@ -394,8 +452,10 @@
                ))
 
 
+
+
 ;;;; custom-stuff
-(defun uniquify-all-lines-region (start end)
+(defun my/uniquify-all-lines-region (start end)
   "Find duplicate lines in region START to END keeping first occurrence."
   (interactive "*r")
   (save-excursion
@@ -406,12 +466,12 @@
             (re-search-forward "^\\(.*\\)\n\\(\\(.*\n\\)*\\)\\1\n" end t))
         (replace-match "\\1\n\\2")))))
 
-(defun uniquify-all-lines-buffer ()
+(defun my/uniquify-all-lines-buffer ()
   "Delete duplicate lines in buffer and keep first occurrence."
   (interactive "*")
   (uniquify-all-lines-region (point-min) (point-max)))
 
-(defun which-active-modes ()
+(defun my/which-active-modes ()
   "Give a message of which minor modes are enabled in the current buffer."
   (interactive)
   (let ((active-modes))
@@ -422,7 +482,7 @@
           minor-mode-list)
     (message "Active modes are %s" active-modes)))
 
-(defun remove-newlines-in-region (s e)
+(defun my/remove-newlines-in-region (s e)
   (interactive "r")
   (save-restriction
     (narrow-to-region s e)
@@ -430,26 +490,26 @@
     (while (search-forward "
 " nil t) (replace-match " " nil t))))
 
-(defun insert-braces ()
+(defun my/insert-braces ()
   (interactive)
   (if (region-active-p)
       (insert-pair 1 ?{ ?})
     (insert "{}")
     (backward-char)))
 
-(defun insert-quotations (&optional arg)
+(defun my/insert-quotations (&optional arg)
   "Enclose following ARG sexps in quotation marks.
 Leave point after open-paren."
   (interactive "*P")
   (insert-pair arg ?\' ?\'))
 
-(defun insert-quotes (&optional arg)
+(defun my/insert-quotes (&optional arg)
   "Enclose following ARG sexps in quotes.
 Leave point after open-quote."
   (interactive "*P")
   (insert-pair arg ?\" ?\"))
 
-(defun insert-backquote (&optional arg)
+(defun my/insert-backquote (&optional arg)
   "Enclose following ARG sexps in quotations with backquote.
 Leave point after open-quotation."
   (interactive "*P")
@@ -459,19 +519,19 @@ Leave point after open-quotation."
 
 
 ;;; cant remember why I have it stuff
-(defun my-minibuffer-setup-hook ()
+(defun my/minibuffer-setup-hook ()
   (setq gc-cons-threshold most-positive-fixnum))
 
-(defun my-minibuffer-exit-hook ()
+(defun my/minibuffer-exit-hook ()
   (setq gc-cons-threshold 800000))
 
-(add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
-(add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)
+(add-hook 'minibuffer-setup-hook #'my/minibuffer-setup-hook)
+(add-hook 'minibuffer-exit-hook #'my/minibuffer-exit-hook)
 
 
 ;; make backup to a designated dir, mirroring the full path
 ;; http://ergoemacs.org/emacs/emacs_set_backup_into_a_directory.html
-(defun my-backup-file-name (fpath)
+(defun my/backup-file-name (fpath)
   "Return a new file path of a given file path.
 If the new path's directories does not exist, create them."
   (let* ((backupRootDir "~/.emacs.d/emacs-backup/")
@@ -484,10 +544,10 @@ If the new path's directories does not exist, create them."
   )
 )
 
-(setq make-backup-file-name-function 'my-backup-file-name)
+(setq make-backup-file-name-function 'my/backup-file-name)
 
 ;; https://stackoverflow.com/questions/8674912/how-to-collapse-whitespaces-in-a-region
-(defun just-one-space-in-region (beg end)
+(defun my/just-one-space-in-region (beg end)
   "replace all whitespace in the region with single spaces"
   (interactive "r")
   (save-excursion
@@ -498,6 +558,7 @@ If the new path's directories does not exist, create them."
         (replace-match " ")))))
 
 ;;; shx stuff
-(defun shx-cmd-dx (args)
+(defun my/shx-cmd-dx (args)
   "open dx"
   (shx-send (concat "sfdx " args)))
+
