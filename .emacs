@@ -4,7 +4,7 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
-(package-initialize)
+; (package-initialize)
 
 (mapc
  (lambda (package)
@@ -49,9 +49,17 @@
 
 ;;;; mac stuff
 (when (eq system-type 'darwin)
-  (setq mac-option-modifier 'super)
-  (setq mac-command-modifier 'meta)
-  (global-set-key (kbd "s-3") '(lambda () (interactive) (insert "#")))
+  ; (setq mac-option-modifier 'super)
+  ; (setq mac-command-modifier 'meta)
+  ; why did I get a DE keyboard
+  (global-set-key "\M-l" '(lambda () (interactive) (insert "@")))
+  (global-set-key "\M-5" '(lambda () (interactive) (insert "[")))
+  (global-set-key "\M-6" '(lambda () (interactive) (insert "]")))
+  (global-set-key "\M-7" '(lambda () (interactive) (insert "|")))
+  (global-set-key "\M-/" '(lambda () (interactive) (insert "\\")))
+  (global-set-key "\M-8" '(lambda () (interactive) (insert "{")))
+  (global-set-key "\M-9" '(lambda () (interactive) (insert "}")))
+  (global-set-key "\M-n" '(lambda () (interactive) (insert "~")))
   (custom-set-variables
    '(gnutls-trustfiles
      (quote
@@ -64,7 +72,6 @@
   (when (memq window-system '(mac ns))
     ;; get the path back... need package
     (exec-path-from-shell-initialize)))
-
 
 (server-start)
 
@@ -562,3 +569,4 @@ If the new path's directories does not exist, create them."
   "open dx"
   (shx-send (concat "sfdx " args)))
 
+(load-theme 'whiteboard)
