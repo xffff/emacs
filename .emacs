@@ -4,6 +4,7 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
+(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 ; (package-initialize)
 
 (mapc
@@ -36,8 +37,9 @@
    plantuml-mode
    powerline
    ob-http
-   org-alert
    org-mind-map
+   org-bullets
+   org-roam
    ox-reveal
    oauth2
    shx
@@ -49,9 +51,10 @@
 
 ;;;; mac stuff
 (when (eq system-type 'darwin)
-  ; (setq mac-option-modifier 'super)
-  ; (setq mac-command-modifier 'meta)
-  ; why did I get a DE keyboard
+  (setq mac-option-modifier 'super)
+  (setq mac-command-modifier 'meta)
+
+                                        ; why did I get a DE keyboard
   (global-set-key "\M-l" '(lambda () (interactive) (insert "@")))
   (global-set-key "\M-5" '(lambda () (interactive) (insert "[")))
   (global-set-key "\M-6" '(lambda () (interactive) (insert "]")))
@@ -84,7 +87,7 @@
 (require 'multiple-cursors)
 (require 'powerline)
 (require 'flycheck)
-(require 'org-alert)
+(require 'org-roam)
 (require 'ox-reveal)
 
 (elpy-enable)
@@ -347,6 +350,13 @@
 ;; (setq org-mind-map-engine "twopi")  ; Radial layouts
 ;; (setq org-mind-map-engine "circo")  ; Circular Layout
 
+(add-hook 'org-mode-hook (lambda() (org-bullets-mode 1)))
+
+(setq org-hide-emphasis-markers t)
+(font-lock-add-keywords 'org-mode
+                        '(("^ *\\([-]\\) "
+                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
 
 (setq org-image-actual-width 100)
 (setq org-reveal-root "file:///Applications/reveal.js/")
@@ -376,14 +386,6 @@
         "WAITING(w@/!)"
         "DONE"))
 
-;; org-gcal stuff
-;; (require 'org-gcal)
-;; (load-file (format "%s/%s" extensions "/gcal/gcal-setup.el"))
-
-; maybe when it works better
-; (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync) ))
-; (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync) ))
-
 ;; org-capture stuff
 (setq org-capture-templates
       '(("a" "Appointment" entry (file  "~/Documents/admin/org/org-capture/meeting-notes.org" )
@@ -397,21 +399,8 @@
         ("s" "Screencast" entry (file "~/Documents/admin/org/org-capture/screencastnotes.org")
          "* %?\n%i\n")))
 
-
-
-
-
 ;; reload org
 (org-reload)
-
-;; easy add code blocks
-(add-to-list 'org-structure-template-alist
-             '("cb" "#+NAME: ?\n#+BEGIN_SRC \n\n#+END_SRC"))
-
-;; easy add name block
-(add-to-list 'org-structure-template-alist
-             '("n" "#+NAME:"))
-
 
 (setq org-startup-with-inline-images nil)
 (add-to-list 'org-src-lang-modes '("http" . ob-http))
@@ -430,18 +419,43 @@
 
 (add-hook 'org-mode-hook 'iimage-mode)
 
+(defun org-config-fill-prefix ()
+  "Set `fill-prefix' to the empty string."
+  (setq fill-prefix ""))
+
+(add-hook 'org-mode-hook #'org-config-fill-prefix)
+
 (setq org-alert-headline-regexp "\\(Sched.+:.+TODO.+\\|Deadline:.+TODO.+\\)")
 
 ;;; Use different font in org mode
 (defun org-mode-buffer-face ()
   "Make org mode more readable"
   (interactive)
-  (setq buffer-face-mode-face
-        '(:family "Menlo" :height 150 :width semi-condensed))
   (toggle-truncate-lines)
   (toggle-word-wrap)
   (visual-line-mode)
   (buffer-face-mode))
+
+(let* ((variable-tuple
+        (cond ((x-list-fonts "Menlo")         '(:font "Menlo"))
+              ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+              ((x-list-fonts "Verdana")         '(:font "Verdana"))
+              ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+              (nil (warn "Cannot find a Sans Serif Font"))))
+       (base-font-color     (face-foreground 'default nil 'default))
+       (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
+
+  (custom-theme-set-faces
+   'user
+   `(org-level-8 ((t (,@headline ,@variable-tuple))))
+   `(org-level-7 ((t (,@headline ,@variable-tuple))))
+   `(org-level-6 ((t (,@headline ,@variable-tuple))))
+   `(org-level-5 ((t (,@headline ,@variable-tuple))))
+   `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+   `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.25))))
+   `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.5))))
+   `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.75))))
+   `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0 :underline nil))))))
 
 (setq org-blank-before-new-entry
       '((heading . always)
@@ -455,11 +469,10 @@
 (add-to-list 'org-agenda-custom-commands
              '("t" "List of all TODO entries"
                alltodo ""
-               ((org-agenda-view-columns-initially t))
-               ))
+               ((org-agenda-view-columns-initially t))))
 
-
-
+(setq org-roam-directory "~/org-roam")
+(add-hook 'after-init-hook 'org-roam-mode)
 
 ;;;; custom-stuff
 (defun my/uniquify-all-lines-region (start end)
@@ -569,4 +582,4 @@ If the new path's directories does not exist, create them."
   "open dx"
   (shx-send (concat "sfdx " args)))
 
-(load-theme 'whiteboard)
+(load-theme 'tango-dark)
