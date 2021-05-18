@@ -3,7 +3,6 @@
 ;;; package stuff
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 ; (package-initialize)
 
@@ -25,21 +24,23 @@
    flycheck
    json-mode
    js2-mode
-   helm
-   helm-company
-   helm-projectile
-   helm-spotify-plus
-   helm-google
-   helm-flycheck
-   htmlize
+   ;; helm
+   ;; helm-company
+   ;; helm-projectile
+   ;; helm-spotify-plus
+   ;; helm-google
+   ;; helm-flycheck
+   ;; htmlize
    magit
    multiple-cursors
    plantuml-mode
    powerline
    ob-http
+   org-alert
    org-mind-map
    org-bullets
    org-roam
+   org-roam-server
    ox-reveal
    oauth2
    shx
@@ -79,8 +80,8 @@
 (server-start)
 
 ;;;; enable packages etc
-(require 'helm)
-(require 'helm-config)
+;(require 'helm)
+;(require 'helm-config)
 (require 'yasnippet)
 (require 'vlf)
 (require 'atomic-chrome)
@@ -95,12 +96,12 @@
 (atomic-chrome-start-server)
 (yas/initialize)
 (yas-global-mode t)
-(helm-mode 1)
-(helm-projectile-on)
+;(helm-mode 1)
+;(helm-projectile-on)
 (semantic-mode 1)
 (show-paren-mode t)
 (column-number-mode t)
-(projectile-global-mode t)
+; (projectile-global-mode t)
 (global-subword-mode t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
@@ -183,36 +184,36 @@
 
 
 ;;;; helm options
-(when (executable-find "curl")
-  (setq helm-google-suggest-use-curl-p t))
+;; (when (executable-find "curl")
+;;   (setq helm-google-suggest-use-curl-p t))
 
-(when (executable-find "ack-grep")
-  (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
-        helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
+;; (when (executable-find "ack-grep")
+;;   (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
+;;         helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
 
-(setq helm-split-window-in-side-p t       ; open helm buffer inside current window, not occupy whole other window
-      helm-move-to-line-cycle-in-source t ; move to end or beginning of source when reaching top or bottom of source.
-      helm-ff-search-library-in-sexp t    ; search for library in `require' and `declare-function' sexp.
-      helm-scroll-amount 8                ; scroll 8 lines other window using M-<next>/M-<prior>
-      helm-ff-file-name-history-use-recentf t)
+;; (setq helm-split-window-in-side-p t       ; open helm buffer inside current window, not occupy whole other window
+;;       helm-move-to-line-cycle-in-source t ; move to end or beginning of source when reaching top or bottom of source.
+;;       helm-ff-search-library-in-sexp t    ; search for library in `require' and `declare-function' sexp.
+;;       helm-scroll-amount 8                ; scroll 8 lines other window using M-<next>/M-<prior>
+;;       helm-ff-file-name-history-use-recentf t)
 
-(setq helm-buffers-fuzzy-matching t
-      helm-recentf-fuzzy-match    t)
-(setq helm-M-x-fuzzy-match t)
+;; (setq helm-buffers-fuzzy-matching t
+;;       helm-recentf-fuzzy-match    t)
+;; (setq helm-M-x-fuzzy-match t)
 
-(setq helm-semantic-fuzzy-match t
-      helm-imenu-fuzzy-match t)
-(setq helm-apropos-fuzzy-match t)
+;; (setq helm-semantic-fuzzy-match t
+;;       helm-imenu-fuzzy-match t)
+;; (setq helm-apropos-fuzzy-match t)
 
 
 
 ;;;; projectile stuff
-(setq projectile-indexing-method 'alien)
-(setq projectile-enable-caching t)
-(setq projectile-remember-window-configs t)
-(setq projectile-completion-system 'helm)
-(setq helm-locate-command
-      "locate %s %s")
+;; (setq projectile-indexing-method 'alien)
+;; (setq projectile-enable-caching t)
+;; (setq projectile-remember-window-configs t)
+;; (setq projectile-completion-system 'helm)
+;; (setq helm-locate-command
+;;       "locate %s %s")
 
 
 ;;;; magit options
@@ -230,23 +231,29 @@
       (kill-region (region-beginning) (region-end))
     (backward-kill-word arg)))
 
-
+(recentf-mode 1)
+(setq recentf-max-menu-items 25)
+(setq recentf-max-saved-items 25)
+(global-set-key "\C-x\ \C-r" 'recentf-open-files)
 
 ;;;; keybindings
 (define-key key-translation-map (kbd "C-h") (kbd "<DEL>")) ; ergonomic backspace
-(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
-(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
-(define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
 (define-key global-map "\C-c c" 'org-capture)
+
+;; (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
+;; (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
+;; (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+
 (global-set-key (kbd "C-w") 'kill-region-or-backward-kill-word)
-(global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "M-Y") 'helm-show-kill-ring)
-(global-set-key (kbd "M-M") 'helm-all-mark-rings)
-(global-set-key (kbd "C-x b") 'helm-mini)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-(global-set-key (kbd "C-c h o") 'helm-occur)
-(global-set-key (kbd "C-c h g") 'helm-google-suggest)
-(global-unset-key  (kbd "C-x C-c"))
+;; (global-set-key (kbd "M-x") 'helm-M-x)
+;; (global-set-key (kbd "M-Y") 'helm-show-kill-ring)
+;; (global-set-key (kbd "M-M") 'helm-all-mark-rings)
+;; (global-set-key (kbd "C-x b") 'helm-mini)
+;; (global-set-key (kbd "C-x C-f") 'helm-find-files)
+;; (global-set-key (kbd "C-c h o") 'helm-occur)
+;; (global-set-key (kbd "C-c h g") 'helm-google-suggest)
+;; (global-unset-key  (kbd "C-x C-c"))
+
 (global-set-key (kbd "C-x C-q") 'save-buffers-kill-terminal) ; no more fat fingers
 (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
@@ -261,9 +268,9 @@
 ;;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
 ;;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
 ;;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
-(global-set-key (kbd "C-c h") 'helm-command-prefix)
-(global-unset-key (kbd "C-x c"))
-(global-set-key (kbd "M-/") 'helm-company)
+;; (global-set-key (kbd "C-c h") 'helm-command-prefix)
+;; (global-unset-key (kbd "C-x c"))
+;; (global-set-key (kbd "M-/") 'helm-company)
 
 
 ;;; company mode options
@@ -294,7 +301,7 @@
 (add-to-list 'auto-mode-alist '("\\.cmp\\'" . nxml-mode))
 (add-to-list 'auto-mode-alist '("\\.evt\\'" . nxml-mode))
 
-(add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
+;; (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
 (add-to-list 'save-some-buffers-action-alist
              `(?r ,(lambda (buf) (revert-buffer buf))
                   ,(purecopy "revert the buffer")))
@@ -380,24 +387,9 @@
         ("WAITING" . (:foreground "purple" :weight bold))
         ("DONE" . (:foreground "green" :weight bold))))
 (setq org-todo-keywords
-      '("TODO"
-        "STARTED"
-        "CANCELED"
-        "WAITING(w@/!)"
-        "DONE"))
+      '((sequence "TODO" "STARTED" "WAITING(w@/!)" "|")
+        (sequence "|" "DONE" "CANCELED")))
 
-;; org-capture stuff
-(setq org-capture-templates
-      '(("a" "Appointment" entry (file  "~/Documents/admin/org/org-capture/meeting-notes.org" )
-         "* %? \n:PROPERTIES:\n:DATE_TIME: %^T\n:PROJECT_NAME: %^G\n:END:\n\n")
-        ("l" "Link" entry (file+headline "~/Documents/admin/org/org-capture/links.org" "Links")
-         "* %? %^L %^g \n%T" :prepend t)
-        ("t" "Todo" entry (file+headline "~/Documents/admin/org/org-capture/capture.org" "Todo")
-         "* TODO %?\n%u" :prepend t)
-        ("n" "Note" entry (file+headline "~/Documents/admin/org/org-capture/capture.org" "Note space")
-         "* %?\n%u" :prepend t)
-        ("s" "Screencast" entry (file "~/Documents/admin/org/org-capture/screencastnotes.org")
-         "* %?\n%i\n")))
 
 ;; reload org
 (org-reload)
@@ -471,8 +463,32 @@
                alltodo ""
                ((org-agenda-view-columns-initially t))))
 
-(setq org-roam-directory "~/org-roam")
+;; org roam stuff
+
 (add-hook 'after-init-hook 'org-roam-mode)
+(setq org-roam-directory "~/Documents/admin/org/org-roam"
+      org-roam-tag-sources '(prop last-directory)
+      org-roam-graph-filetype "png"
+      org-roam-dailies-directory "dailies/"
+      org-roam-dailies-capture-templates
+      '(("d" "default" entry
+         #'org-roam-capture--get-point
+         "* %?"
+         :file-name "dailies/%<%Y-%m-%d>"
+         :head "#+title: %<%Y-%m-%d>\n\n")))
+
+(setq org-roam-server-host "127.0.0.1"
+        org-roam-server-port 31338
+        org-roam-server-authenticate nil
+        org-roam-server-export-inline-images t
+        org-roam-server-serve-files nil
+        org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
+        org-roam-server-network-poll t
+        org-roam-server-network-arrows nil
+        org-roam-server-network-label-truncate t
+        org-roam-server-network-label-truncate-length 60
+        org-roam-server-network-label-wrap-length 20)
+
 
 ;;;; custom-stuff
 (defun my/uniquify-all-lines-region (start end)
@@ -534,8 +550,6 @@ Leave point after open-quote."
 Leave point after open-quotation."
   (interactive "*P")
   (insert-pair arg ?\` ?\'))
-
-
 
 
 ;;; cant remember why I have it stuff
