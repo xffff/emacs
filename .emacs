@@ -37,6 +37,7 @@
    ox-reveal
    oauth2
    shx
+   solarized-theme
    vlf
    yasnippet
    web-mode
@@ -402,7 +403,7 @@
                ((org-agenda-view-columns-initially t))))
 
 ;; org roam stuff
-(define-key global-map "\C-c c" 'org-roam-dailies-find-today) ;; no more capture
+(global-set-key (kbd "C-c c") 'org-roam-dailies-find-today)
 (add-hook 'after-init-hook 'org-roam-mode)
 (setq org-roam-directory "~/Documents/admin/org/org-roam"
       org-roam-tag-sources '(prop last-directory)
@@ -534,4 +535,5 @@ If the new path's directories does not exist, create them."
   "open dx"
   (shx-send (concat "sfdx " args)))
 
-(load-theme 'tango-dark)
+(load-theme 'wombat)
+(load-theme 'org-beautify)
