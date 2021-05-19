@@ -57,6 +57,9 @@
   (global-set-key "\M-8" '(lambda () (interactive) (insert "{")))
   (global-set-key "\M-9" '(lambda () (interactive) (insert "}")))
   (global-set-key "\M-n" '(lambda () (interactive) (insert "~")))
+
+  (define-key minibuffer-local-map "\M-n" "~")
+  
   (custom-set-variables
    '(gnutls-trustfiles
      (quote
@@ -194,13 +197,10 @@
 ;;;; keybindings
 (define-key key-translation-map (kbd "C-h") (kbd "<DEL>")) ; ergonomic backspace
 
-
-
-
 (global-set-key (kbd "C-w") 'kill-region-or-backward-kill-word)
 
 ;; no more fat fingers
-(global-unset-key (kbd "C-x c"))
+(global-unset-key (kbd "C-x C-c"))
 (global-set-key (kbd "C-x C-q") 'save-buffers-kill-terminal)
 
 ;; multi cursor stuff
@@ -286,6 +286,12 @@
 ;; This is an Emacs package that creates graphviz directed graphs from
 (require 'ox-org)
 
+;; stop these annoying keybindings that interfere with windmove
+(define-key org-mode-map (kbd "<M-up>") nil)
+(define-key org-mode-map (kbd "<M-down>") nil)
+(define-key org-mode-map (kbd "<M-left>") nil)
+(define-key org-mode-map (kbd "<M-right>") nil)
+
 (setq org-mind-map-engine "dot")       ; Default. Directed Graph
 ;; (setq org-mind-map-engine "neato")  ; Undirected Spring Graph
 ;; (setq org-mind-map-engine "twopi")  ; Radial Layout
@@ -332,6 +338,7 @@
 (org-reload)
 
 (setq org-startup-with-inline-images nil)
+
 (add-to-list 'org-src-lang-modes '("http" . ob-http))
 (add-to-list 'org-src-lang-modes '("python" . python))
 (add-to-list 'org-babel-load-languages '(http . t))
