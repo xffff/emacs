@@ -24,13 +24,6 @@
    flycheck
    json-mode
    js2-mode
-   ;; helm
-   ;; helm-company
-   ;; helm-projectile
-   ;; helm-spotify-plus
-   ;; helm-google
-   ;; helm-flycheck
-   ;; htmlize
    magit
    multiple-cursors
    plantuml-mode
@@ -80,8 +73,6 @@
 (server-start)
 
 ;;;; enable packages etc
-;(require 'helm)
-;(require 'helm-config)
 (require 'yasnippet)
 (require 'vlf)
 (require 'atomic-chrome)
@@ -96,12 +87,9 @@
 (atomic-chrome-start-server)
 (yas/initialize)
 (yas-global-mode t)
-;(helm-mode 1)
-;(helm-projectile-on)
 (semantic-mode 1)
 (show-paren-mode t)
 (column-number-mode t)
-; (projectile-global-mode t)
 (global-subword-mode t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
@@ -183,39 +171,6 @@
 (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
 
 
-;;;; helm options
-;; (when (executable-find "curl")
-;;   (setq helm-google-suggest-use-curl-p t))
-
-;; (when (executable-find "ack-grep")
-;;   (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
-;;         helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
-
-;; (setq helm-split-window-in-side-p t       ; open helm buffer inside current window, not occupy whole other window
-;;       helm-move-to-line-cycle-in-source t ; move to end or beginning of source when reaching top or bottom of source.
-;;       helm-ff-search-library-in-sexp t    ; search for library in `require' and `declare-function' sexp.
-;;       helm-scroll-amount 8                ; scroll 8 lines other window using M-<next>/M-<prior>
-;;       helm-ff-file-name-history-use-recentf t)
-
-;; (setq helm-buffers-fuzzy-matching t
-;;       helm-recentf-fuzzy-match    t)
-;; (setq helm-M-x-fuzzy-match t)
-
-;; (setq helm-semantic-fuzzy-match t
-;;       helm-imenu-fuzzy-match t)
-;; (setq helm-apropos-fuzzy-match t)
-
-
-
-;;;; projectile stuff
-;; (setq projectile-indexing-method 'alien)
-;; (setq projectile-enable-caching t)
-;; (setq projectile-remember-window-configs t)
-;; (setq projectile-completion-system 'helm)
-;; (setq helm-locate-command
-;;       "locate %s %s")
-
-
 ;;;; magit options
 (setq magit-last-seen-setup-instructions "1.4.0")
 (setq magit-save-repository-buffers nil)
@@ -238,40 +193,25 @@
 
 ;;;; keybindings
 (define-key key-translation-map (kbd "C-h") (kbd "<DEL>")) ; ergonomic backspace
-(define-key global-map "\C-c c" 'org-capture)
 
-;; (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
-;; (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
-;; (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+
+
 
 (global-set-key (kbd "C-w") 'kill-region-or-backward-kill-word)
-;; (global-set-key (kbd "M-x") 'helm-M-x)
-;; (global-set-key (kbd "M-Y") 'helm-show-kill-ring)
-;; (global-set-key (kbd "M-M") 'helm-all-mark-rings)
-;; (global-set-key (kbd "C-x b") 'helm-mini)
-;; (global-set-key (kbd "C-x C-f") 'helm-find-files)
-;; (global-set-key (kbd "C-c h o") 'helm-occur)
-;; (global-set-key (kbd "C-c h g") 'helm-google-suggest)
-;; (global-unset-key  (kbd "C-x C-c"))
 
-(global-set-key (kbd "C-x C-q") 'save-buffers-kill-terminal) ; no more fat fingers
+;; no more fat fingers
+(global-unset-key (kbd "C-x c"))
+(global-set-key (kbd "C-x C-q") 'save-buffers-kill-terminal)
+
+;; multi cursor stuff
 (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
-
 (define-key minibuffer-local-map
   (kbd "C-w")
   'kill-region-or-backward-kill-word)
-
-;;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
-;;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
-;;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
-;; (global-set-key (kbd "C-c h") 'helm-command-prefix)
-;; (global-unset-key (kbd "C-x c"))
-;; (global-set-key (kbd "M-/") 'helm-company)
-
 
 ;;; company mode options
 (add-hook 'after-init-hook 'global-company-mode)
@@ -301,15 +241,12 @@
 (add-to-list 'auto-mode-alist '("\\.cmp\\'" . nxml-mode))
 (add-to-list 'auto-mode-alist '("\\.evt\\'" . nxml-mode))
 
-;; (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
 (add-to-list 'save-some-buffers-action-alist
              `(?r ,(lambda (buf) (revert-buffer buf))
                   ,(purecopy "revert the buffer")))
 (add-to-list 'save-some-buffers-action-alist
              `(?k ,(lambda (buf) (kill-buffer buf))
                   ,(purecopy "kill the buffer")))
-
-
 
 ;;;; java stuff
 (add-hook 'prog-mode-hook (lambda ()
@@ -458,7 +395,7 @@
                ((org-agenda-view-columns-initially t))))
 
 ;; org roam stuff
-
+(define-key global-map "\C-c c" 'org-roam-dailies-find-today) ;; no more capture
 (add-hook 'after-init-hook 'org-roam-mode)
 (setq org-roam-directory "~/Documents/admin/org/org-roam"
       org-roam-tag-sources '(prop last-directory)
