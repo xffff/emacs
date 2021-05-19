@@ -287,11 +287,7 @@
 ;; This is an Emacs package that creates graphviz directed graphs from
 (require 'ox-org)
 
-;; stop these annoying keybindings that interfere with windmove
-(define-key org-mode-map (kbd "<M-up>") nil)
-(define-key org-mode-map (kbd "<M-down>") nil)
-(define-key org-mode-map (kbd "<M-left>") nil)
-(define-key org-mode-map (kbd "<M-right>") nil)
+
 
 (setq org-mind-map-engine "dot")       ; Default. Directed Graph
 ;; (setq org-mind-map-engine "neato")  ; Undirected Spring Graph
@@ -339,6 +335,13 @@
 (org-reload)
 
 (setq org-startup-with-inline-images nil)
+
+
+;; stop these annoying keybindings that interfere with windmove
+(define-key org-mode-map (kbd "<S-up>") nil)
+(define-key org-mode-map (kbd "<S-down>") nil)
+(define-key org-mode-map (kbd "<S-left>") nil)
+(define-key org-mode-map (kbd "<S-right>") nil)
 
 (add-to-list 'org-src-lang-modes '("http" . ob-http))
 (add-to-list 'org-src-lang-modes '("python" . python))
