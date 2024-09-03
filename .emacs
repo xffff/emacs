@@ -4,7 +4,7 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
-; (package-initialize)
+;(package-initialize)
 
 (mapc
  (lambda (package)
@@ -15,13 +15,16 @@
  '(atomic-chrome
    company
    csv-mode
+   deft
    docker
    docker-compose-mode
    dockerfile-mode
    elpy
    exec-path-from-shell
    go-mode
+   gcmh
    flycheck
+   flycheck-plantuml
    json-mode
    js2-mode
    magit
@@ -30,10 +33,10 @@
    powerline
    ob-http
    org-alert
+   org-download
    org-mind-map
    org-bullets
    org-roam
-   org-roam-server
    ox-reveal
    oauth2
    shx
@@ -76,6 +79,8 @@
 
 (server-start)
 
+(gcmh-mode 1)
+
 ;;;; enable packages etc
 (require 'yasnippet)
 (require 'vlf)
@@ -83,8 +88,9 @@
 (require 'multiple-cursors)
 (require 'powerline)
 (require 'flycheck)
-(require 'org-roam)
 (require 'ox-reveal)
+(require 'deft)
+(require 'url-util)
 
 (elpy-enable)
 (powerline-default-theme)
@@ -260,7 +266,11 @@
 ;;; plantuml stuff
 (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
 (setq plantuml-output-type "png")
-(setq plantuml-default-exec-mode "jar")
+(setq plantuml-default-exec-mode 'jar)
+(setq plantuml-java-args (list "-Djava.awt.headless=true" "-jar"))
+(setq plantuml-jar-path "/usr/local/opt/plantuml/libexec/plantuml.jar")
+(setq org-plantuml-jar-path "/usr/local/opt/plantuml/libexec/plantuml.jar")
+
 
 ;;;; python stuff
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
@@ -286,8 +296,8 @@
 
 ;; This is an Emacs package that creates graphviz directed graphs from
 (require 'ox-org)
-
-
+(require 'ox-latex)
+(setq org-latex-create-formula-image-program 'dvipng)
 
 (setq org-mind-map-engine "dot")       ; Default. Directed Graph
 ;; (setq org-mind-map-engine "neato")  ; Undirected Spring Graph
@@ -305,7 +315,7 @@
                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
 
-(setq org-image-actual-width 100)
+(setq org-image-actual-width 400)
 (setq org-reveal-root "file:///Applications/reveal.js/")
 (setq org-src-fontify-natively t)
 (setq org-src-tab-acts-natively t)
@@ -320,6 +330,14 @@
         ))
 
 (setq org-tags-column -100)
+(setq org-tag-alist '(("@urgent" . ?u)
+                      ("@important" . ?i)
+                      ("@oba" . ?o)
+                      ("@adhoc" . ?t)
+                      ("@directs" . ?d)
+                      ("@admin" . ?a)
+                      ("@training" . ?t)
+                      ("@kso" . ?k)))
 (setq org-todo-keyword-faces
       '(("TODO" . org-warning)
         ("STARTED" . "yellow")
@@ -343,19 +361,39 @@
 (define-key org-mode-map (kbd "<S-left>") nil)
 (define-key org-mode-map (kbd "<S-right>") nil)
 
+(add-hook 'org-agenda-mode-hook
+          (lambda ()
+            (define-key org-agenda-mode-map (kbd "<S-up>") nil)
+            (define-key org-agenda-mode-map (kbd "<S-down>") nil)
+            (define-key org-agenda-mode-map (kbd "<S-left>") nil)
+            (define-key org-agenda-mode-map (kbd "<S-right>") nil)))
+(setq org-agenda-files (directory-files-recursively
+                        "~/Documents/admin/org/org-roam"
+                        "^[^#].*\\.org$"))
+(setq org-roam-v2-ack t)
+;; (add-hook 'org-agenda-mode-hook
+;;           (lambda()
+;;             (local-set-key (kbd "<S-up>" nil))
+;;             (local-set-key (kbd "<S-down>") nil)
+;;             (local-set-key (kbd "<S-left>") nil)
+;;             (local-set-key (kbd "<S-right>") nil)))
+
+(require 'ob-js)
 (add-to-list 'org-src-lang-modes '("http" . ob-http))
 (add-to-list 'org-src-lang-modes '("python" . python))
 (add-to-list 'org-babel-load-languages '(http . t))
 (add-to-list 'org-babel-load-languages '(shell . t))
+(add-to-list 'org-babel-load-languages '(calc . t))
+(add-to-list 'org-babel-load-languages '(plantuml . t))
+(add-to-list 'org-babel-load-languages '(js . t))
 (add-to-list 'org-babel-load-languages '(python . t))
+(add-to-list 'org-babel-load-languages '(latex . t))
+(setq org-babel-python-command "python3")
 
 (setq org-confirm-babel-evaluate nil)
 
-(require 'ob-js)
-(add-to-list 'org-babel-load-languages '(js . t))
 (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 (add-to-list 'org-babel-tangle-lang-exts '("js" . "js"))
-
 
 (add-hook 'org-mode-hook 'iimage-mode)
 
@@ -398,7 +436,7 @@
 (add-hook 'org-mode-hook 'org-mode-buffer-face)
 
 (setq org-columns-default-format
-      "%CATEGORY %25ITEM %TODO %3PRIORITY %SCHEDULED %DEADLINE %EFFORT %ALLTAGS")
+      "%ITEM %TODO %SCHEDULED %DEADLINE %CLOCKSUM %ALLTAGS")
 
 (add-to-list 'org-agenda-custom-commands
              '("t" "List of all TODO entries"
@@ -406,6 +444,7 @@
                ((org-agenda-view-columns-initially t))))
 
 ;; org roam stuff
+(require 'org-roam)
 (global-set-key (kbd "C-c c") 'org-roam-dailies-find-today)
 (add-hook 'after-init-hook 'org-roam-mode)
 (setq org-roam-directory "~/Documents/admin/org/org-roam"
@@ -414,10 +453,9 @@
       org-roam-dailies-directory "dailies/"
       org-roam-dailies-capture-templates
       '(("d" "default" entry
-         #'org-roam-capture--get-point
          "* %?"
-         :file-name "dailies/%<%Y-%m-%d>"
-         :head "#+title: %<%Y-%m-%d>\n\n")))
+         :if-new (file+head "%<%Y-%m-%d>.org"
+                            "#+title: %<%Y-%m-%d>\n"))))
 
 (setq org-roam-server-host "127.0.0.1"
         org-roam-server-port 31338
@@ -431,6 +469,31 @@
         org-roam-server-network-label-truncate-length 60
         org-roam-server-network-label-wrap-length 20)
 
+(setq deft-directory "~/Documents/admin/org/"
+      deft-recursive t
+      deft-strip-summary-regexp
+      (concat "\\("
+	          "^:.+:.*\n" ; any line with a :SOMETHING:
+	          "\\|^#\\+.*\n" ; anyline starting with a #+
+	          "\\|^\\*.+.*\n" ; anyline where an asterisk starts the line
+	          "\\)"))
+
+(advice-add 'deft-parse-title :override 
+    (lambda (file contents)
+      (if deft-use-filename-as-title
+	  (deft-base-filename file)
+	(let* ((case-fold-search 't)
+	       (begin (string-match "title: " contents))
+	       (end-of-begin (match-end 0))
+	       (end (string-match "\n" contents begin)))
+	  (if begin 
+	      (substring contents end-of-begin end)
+	    (format "%s" file))))))
+
+
+(require 'org-download)
+(setq-default org-download-image-dir "~/Documents/admin/org/org-download")
+(setq org-download-screenshot-method "/usr/sbin/screencapture -i %s")
 
 ;;;; custom-stuff
 (defun my/uniquify-all-lines-region (start end)
@@ -516,9 +579,7 @@ If the new path's directories does not exist, create them."
     (make-directory
      (file-name-directory backupFilePath)
      (file-name-directory backupFilePath))
-    backupFilePath
-  )
-)
+    backupFilePath))
 
 (setq make-backup-file-name-function 'my/backup-file-name)
 
@@ -539,4 +600,3 @@ If the new path's directories does not exist, create them."
   (shx-send (concat "sfdx " args)))
 
 (load-theme 'wombat)
-(load-theme 'org-beautify)
